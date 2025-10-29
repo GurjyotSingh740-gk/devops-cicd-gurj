@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = "devops-app"
+        APP_PORT = "8081"
+    }
+    
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo '📥 Checking out code from Git...'
+                checkout scm
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                echo '🐳 Building Docker image...'
+                dir('app') {
+                    script {
+                        bat 'docker build -t %DOCKER_IMAGE%:latest .'
+                    }
+                }
+            }
+        }
+        
+        stage('Terraform Init') {
+            steps {
+                echo '🔧 Initializing Terraform...'
+                dir('terraform') {
+                    bat 'terraform init'
+                }
+            }
+        }
+        
+        stage('Terraform Plan') {
+            steps {
+                echo '📋 Planning infrastructure...'
+                dir('terraform') {
+                    bat 'terraform plan -var="environment=dev" -var="app_port=%APP_PORT%"'
+                }
+            }
+        }
+        
+        stage('Terraform Apply') {
+            steps {
+                echo '🚀 Deploying infrastructure...'
+                dir('terraform') {
+                    bat 'terraform apply -auto-approve -var="environment=dev" -var="app_port=%APP_PORT%"'
+                }
+            }
+        }
+        
+        stage('Verify Deployment') {
+            steps {
+                echo '✅ Verifying deployment...'
+                bat 'docker ps'
+                echo "Application running at: http://localhost:%APP_PORT%"
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+        }
+    }
+}
