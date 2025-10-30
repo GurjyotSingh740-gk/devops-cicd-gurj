@@ -28,7 +28,7 @@ pipeline {
         stage('Start Grafana') {
             steps {
                 echo 'Starting Grafana monitoring container...'
-                bat 'docker run -d -p 3000:3000 --name=grafana grafana/grafana:latest || echo Grafana already running'
+                bat 'docker run -d -p 3000:3000 --name=grafana-monitoring grafana/grafana:latest || echo Grafana already running'
             }
         }
         

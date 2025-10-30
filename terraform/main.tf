@@ -43,7 +43,7 @@ resource "docker_image" "grafana" {
 }
 
 resource "docker_container" "grafana" {
-  name  = "grafana"
+  name  = "grafana-monitoring"
   image = docker_image.grafana.image_id
 
   ports {
