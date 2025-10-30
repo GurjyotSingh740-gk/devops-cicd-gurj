@@ -36,3 +36,20 @@ resource "docker_container" "app_container" {
 
   restart = "unless-stopped"
 }
+
+#Grafana Docker Image
+resource "docker_image" "grafana" {
+  name = "grafana/grafana:latest"
+}
+
+resource "docker_container" "grafana" {
+  name  = "grafana"
+  image = docker_image.grafana.image_id
+
+  ports {
+    internal = 3000
+    external = 3000
+  }
+
+  restart = "unless-stopped"
+}

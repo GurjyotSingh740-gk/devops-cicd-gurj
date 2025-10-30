@@ -24,6 +24,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Start Grafana') {
+            steps {
+                echo 'Starting Grafana monitoring container...'
+                bat 'docker run -d -p 3000:3000 --name=grafana grafana/grafana:latest || echo Grafana already running'
+            }
+        }
         
         stage('Terraform Init') {
             steps {
@@ -60,17 +67,7 @@ pipeline {
             }
         }
 
-        // New stage added below for DockerHub push
-        stage('Docker Login & Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${env.DOCKER_CREDS}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    bat 'docker logout'
-                    bat 'echo %PASSWORD% | docker login -u %USERNAME% --password-stdin'
-                    bat "docker tag %DOCKER_IMAGE%:latest %IMAGE_NAME%:%IMAGE_TAG%"
-                    bat "docker push %IMAGE_NAME%:%IMAGE_TAG%"
-                }
-            }
-        }
+        
     }
     
     post {
